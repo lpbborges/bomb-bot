@@ -33,26 +33,26 @@ class BombcryptoManager:
                 
         check_error = current_screen == BombScreenEnum.POPUP_ERROR.value or current_screen == BombScreenEnum.NOT_FOUND.value
         
-        refresh_check_error = Config.get('screen', 'refresh_check_error')*60
+        refresh_check_error = Config.get('screen', 'refresh_check_error') * 60
         if ((check_error) or (refresh_check_error and (now() - self.refresh_check_error > refresh_check_error))):
             Hero.do_check_error(self)
             
-        refresh_login = Config.get('screen', 'refresh_login')*60
+        refresh_login = Config.get('screen', 'refresh_login') * 60
         if (refresh_login and (now() - self.refresh_login > refresh_login)):
             Login.do_login(self)
             
-        refresh_heroes=Config.get('screen', 'refresh_heroes')*60
+        refresh_heroes = Config.get('screen', 'refresh_heroes') * 60
         if (refresh_heroes and (now() - self.refresh_heroes > refresh_heroes)):
             Hero.who_needs_work(self)
 
-        refresh_hunt = Config.get('screen', 'refresh_hunt')*60
+        refresh_hunt = Config.get('screen', 'refresh_hunt') * 60
         if (refresh_hunt and (now() - self.refresh_hunt > refresh_hunt)):
             Hero.refresh_hunt(self)
         
-        if Config.get('telegram','token') and  Config.get('telegram','chat_id'):
-            refresh_print_chest = Config.get('telegram', 'refresh_print_chest')*60
-            if (refresh_print_chest and (now() - self.refresh_print_chest > refresh_print_chest)):
-                BombScreen.do_print_chest(self)
+        # if Config.get('telegram','token') and  Config.get('telegram','chat_id'):
+        #     refresh_print_chest = Config.get('telegram', 'refresh_print_chest') * 60
+        #     if (refresh_print_chest and (now() - self.refresh_print_chest > refresh_print_chest)):
+        #         BombScreen.do_print_chest(self)
         
         return True
     

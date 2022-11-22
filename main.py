@@ -20,7 +20,7 @@ def main(config_file):
         # Load configs
         Config.load_config(config_file)
         Image.load_targets()
-        TelegramBot.load_config()
+        # TelegramBot.load_config()
         
         if Config.get("generals", "reset_log_file"):
             reset_log_file()

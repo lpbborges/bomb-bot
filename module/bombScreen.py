@@ -20,6 +20,7 @@ class BombScreenEnum(Enum):
     CHEST = 4
     POPUP_ERROR = 5
     SETTINGS = 6
+    METAMASK = 7
 
 
 class BombScreen:
@@ -63,9 +64,10 @@ class BombScreen:
             BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
             BombScreenEnum.LOGIN.value: Image.TARGETS["identify_login"],
             BombScreenEnum.TREASURE_HUNT.value: Image.TARGETS["identify_treasure_hunt"],
-            BombScreenEnum.CHEST.value: Image.TARGETS["identify_hunt_chest"],
-            BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_erro"],
-            BombScreenEnum.SETTINGS.value: Image.TARGETS["identify_settings"],
+            # BombScreenEnum.CHEST.value: Image.TARGETS["identify_hunt_chest"],
+            BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_error"],
+            BombScreenEnum.METAMASK.value: Image.TARGETS["button_sign_wallet_dark"],
+            # BombScreenEnum.SETTINGS.value: Image.TARGETS["identify_settings"],
         }
         max_value = 0
         img = Image.screen()
@@ -81,15 +83,19 @@ class BombScreen:
         return screen_name if max_value > Config.get("threshold", "default") else -1
 
     def go_to_home(manager, current_screen = None):
+        logger("go_to_home")
         current_screen = BombScreen.get_current_screen() if current_screen == None else current_screen
         if current_screen == BombScreenEnum.HOME.value:
+            logger("already in home")
             return
         elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
+            logger("currently in treasure hunt, going back")
             click_when_target_appears("button_back")
         elif current_screen == BombScreenEnum.HEROES.value:
-            click_when_target_appears("buttun_x_close")
-        elif current_screen == BombScreenEnum.CHEST.value:
-            click_when_target_appears("buttun_x_close")
+            logger("heroes screen, closing")
+            click_when_target_appears("button_x_close")
+        # elif current_screen == BombScreenEnum.CHEST.value:
+        #     click_when_target_appears("button_x_close")
             return BombScreen.go_to_home(manager)
         else:
             Login.do_login(manager)
@@ -98,20 +104,21 @@ class BombScreen:
         BombScreen.wait_for_screen(BombScreenEnum.HOME.value)
 
     def go_to_heroes(manager, current_screen = None):
+        logger("go_to_heroes")
         current_screen = BombScreen.get_current_screen() if current_screen == None else current_screen
         
         if current_screen == BombScreenEnum.HOME.value:
-            click_when_target_appears("button_heroes")
-            BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
+            click_when_target_appears("identify_home")
+            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
             
-        elif current_screen == BombScreenEnum.HEROES.value:
+        elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
             return
         
-        elif current_screen == BombScreenEnum.CHEST.value or current_screen == BombScreenEnum.SETTINGS.value:
-            click_when_target_appears("buttun_x_close")
-            BombScreen.wait_for_leave_screen(BombScreenEnum.CHEST.value)
-            BombScreen.go_to_home(manager)
-            return BombScreen.go_to_heroes(manager) 
+        # elif current_screen == BombScreenEnum.CHEST.value or current_screen == BombScreenEnum.SETTINGS.value:
+        #     click_when_target_appears("buttun_x_close")
+        #     BombScreen.wait_for_leave_screen(BombScreenEnum.CHEST.value)
+        #     BombScreen.go_to_home(manager)
+        #     return BombScreen.go_to_heroes(manager) 
         
         else:
             Login.do_login(manager)
@@ -169,9 +176,9 @@ class Login:
         if not logged:
             logger_translated("login", LoggerEnum.ACTION)
 
-            login_attepmts = Config.PROPERTIES["screen"]["number_login_attempts"]
+            login_attempts = Config.PROPERTIES["screen"]["number_login_attempts"]
         
-            for i in range(login_attepmts):
+            for i in range(login_attempts):
                 
                 if BombScreen.get_current_screen() != BombScreenEnum.LOGIN.value:
                     refresh_page()
@@ -183,14 +190,31 @@ class Login:
                 if not click_when_target_appears("button_connect_wallet"):
                     refresh_page()
                     continue
+
+                logger_translated("network", LoggerEnum.BUTTON_CLICK)
+                if not click_when_target_appears("button_select_polygon"):
+                    refresh_page()
+                    continue
+
+                logger_translated("region", LoggerEnum.BUTTON_CLICK)
+                if not click_when_target_appears("button_select_south_america"):
+                    refresh_page()
+                    continue
+
+                logger_translated("play", LoggerEnum.BUTTON_CLICK)
+                if not click_when_target_appears("button_play"):
+                    refresh_page()
+                    continue
                 
                 logger_translated("connect with metamask", LoggerEnum.BUTTON_CLICK)
                 if not click_when_target_appears("button_connect_metamask"):
                     refresh_page()
                     continue
+                
+                BombScreen.wait_for_screen(BombScreenEnum.METAMASK.value)
 
                 logger_translated("sigin wallet", LoggerEnum.BUTTON_CLICK)
-                if not click_when_target_appears("button_connect_wallet_sign"):
+                if not click_when_target_appears("button_sign_wallet") and not click_when_target_appears("button_sign_wallet_dark"):
                     refresh_page()
                     continue
 
@@ -223,8 +247,8 @@ class Hero:
         scale_factor = 10
 
         current_screen = BombScreen.get_current_screen()
-        BombScreen.go_to_home(manager, current_screen)
-        current_screen = BombScreenEnum.HOME.value
+        BombScreen.go_to_treasure_hunt(manager, current_screen)
+        current_screen = BombScreenEnum.TREASURE_HUNT.value
         BombScreen.go_to_heroes(manager, current_screen)
         
         def click_available_heroes():
@@ -239,11 +263,11 @@ class Hero:
 
             x_buttons = buttons_position[0][0]
             height, width = Image.TARGETS["hero_search_area"].shape[:2]
-            screen_img = screen_img[:,x_buttons-width-Image.MONITOR_LEFT:x_buttons - Image.MONITOR_LEFT, :]
+            screen_img = screen_img[:, x_buttons - width - Image.MONITOR_LEFT:x_buttons - Image.MONITOR_LEFT, :]
             logger("↳", end=" ", datetime=False)
             for button_position in buttons_position:
                 x,y,w,h = button_position
-                search_img = screen_img[y:y+height, :, :]
+                search_img = screen_img[y:y + height, :, :]
 
                 rarity_max_values = [Image.get_compare_result(search_img, Image.TARGETS[rarity]).max() for rarity in heroes_rarity]
                 rarity_index, rarity_max_value= 0, 0
@@ -254,14 +278,14 @@ class Hero:
                 logger(f"{hero_rarity}:", end=" ", datetime=False)
 
                 life_max_values = [Image.get_compare_result(search_img, Image.TARGETS[bar]).max() for bar in heroes_bar]
-                life_index, life_max_value= 0, 0
+                life_index, life_max_value = 0, 0
                 for i, value in enumerate(life_max_values):
                     life_index, life_max_value = (i, value) if value >= life_max_value else (life_index, life_max_value)
 
 
-                logger(f"{life_index*scale_factor}%", end=" ", datetime=False)
-                if life_index*scale_factor >= Config.get('heroes_work_mod', hero_rarity):
-                    click_randomly_in_position(x,y,w,h)
+                logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
+                if life_index * scale_factor >= Config.get('heroes_work_mod', "Rare"):
+                    click_randomly_in_position(x, y, w, h)
                     n_clicks += 1
                     logger("💪;", end=" ",datetime=False)
                 else:
@@ -271,12 +295,12 @@ class Hero:
             return n_clicks
 
         n_clicks_per_scrool = scroll_and_click_on_targets(
-            safe_scroll_target="hero_bar_vertical",
-            repeat=Config.get('screen','scroll_heroes', 'repeat'),
-            distance=Config.get('screen','scroll_heroes', 'distance'),
-            duration=Config.get('screen','scroll_heroes', 'duration'),
-            wait=Config.get('screen','scroll_heroes', 'wait'),
-            function_between=click_available_heroes
+            safe_scroll_target = "hero_bar_vertical",
+            repeat = Config.get('screen','scroll_heroes', 'repeat'),
+            distance = Config.get('screen','scroll_heroes', 'distance'),
+            duration = Config.get('screen','scroll_heroes', 'duration'),
+            wait = Config.get('screen','scroll_heroes', 'wait'),
+            function_between = click_available_heroes
         )
         
         logger(f"🏃 {sum(n_clicks_per_scrool)} new heros sent to explode everything 💣💣💣.")
