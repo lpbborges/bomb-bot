@@ -41,9 +41,9 @@ class BombcryptoManager:
         if (refresh_login and (now() - self.refresh_login > refresh_login)):
             Login.do_login(self)
             
-        refresh_heroes = Config.get('screen', 'refresh_heroes') * 60
-        if (refresh_heroes and (now() - self.refresh_heroes > refresh_heroes)):
-            Hero.who_needs_work(self)
+        # refresh_heroes = Config.get('screen', 'refresh_heroes') * 60
+        # if (refresh_heroes and (now() - self.refresh_heroes > refresh_heroes)):
+        Hero.who_needs_work(self)
 
         refresh_hunt = Config.get('screen', 'refresh_hunt') * 60
         if (refresh_hunt and (now() - self.refresh_hunt > refresh_hunt)):

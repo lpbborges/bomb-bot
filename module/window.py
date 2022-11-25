@@ -26,7 +26,7 @@ def _get_linux_bombcrypto_windows():
 def _get_bombcrypto_windows():
     import pygetwindow
 
-    return [DefaultWindow(w) for w in pygetwindow.getWindowsWithTitle("bombcrypto")]
+    return [DefaultWindow(w) for w in pygetwindow.getWindowsWithTitle("Bomber Land")]
 
 class LinuxWindow:
     def __init__(self, window_id) -> None:

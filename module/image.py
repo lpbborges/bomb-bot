@@ -82,7 +82,6 @@ class Image:
         threshold_config = Config.PROPERTIES["threshold"]["hero_to_work"]
         if(threshold_config):
             threshold = threshold_config
-            
         target_img = Image.TARGETS[target]
         screen_img = Image.screen() if screen_image is None else screen_image
         result = cv2.matchTemplate(screen_img, target_img, cv2.TM_CCOEFF_NORMED)
@@ -92,15 +91,15 @@ class Image:
             not_target_result = cv2.matchTemplate(screen_img, not_target_img, cv2.TM_CCOEFF_NORMED)
             result[result < not_target_result] = 0
 
-        y_result, x_result = np.where( result >= threshold)
+        y_result, x_result = np.where(result >= threshold)
         
         
         height, width = target_img.shape[:2]
         targets_positions = []
-        for (x,y) in zip(x_result, y_result):
+        for (x, y) in zip(x_result, y_result):
             x += Image.MONITOR_LEFT
             y += Image.MONITOR_TOP
-            targets_positions.append([x,y,width,height])
+            targets_positions.append([x, y, width, height])
             
         return targets_positions
     
@@ -142,9 +141,9 @@ class Image:
 
 
     def filter_by_green_bar(item):
-        x,y,w,h = item
-        y_increment = round(h*0.1)
-        screen_img = Image.screen()[y:y+h+y_increment,:]
+        x, y, w, h = item
+        y_increment = round(h * 0.1)
+        screen_img = Image.screen()[y:y + h + y_increment,:]
         result = Image.get_target_positions("hero_bar_green", screen_image=screen_img)
         return len(result) > 0
       

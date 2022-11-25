@@ -80,7 +80,7 @@ def move_to(target:str):
 
     return do_with_timeout(move_to_logical)
 
-def scroll_and_click_on_targets(safe_scroll_target: str, repeat: int, distance:float, duration: float, wait:float, function_between, execute_before=True):
+def scroll_and_click_on_targets(safe_scroll_target: str, repeat: int, distance: float, duration: float, wait:float, function_between, execute_before=True):
     res = []
     if execute_before:
         res.append(function_between())

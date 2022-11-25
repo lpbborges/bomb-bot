@@ -83,20 +83,15 @@ class BombScreen:
         return screen_name if max_value > Config.get("threshold", "default") else -1
 
     def go_to_home(manager, current_screen = None):
-        logger("go_to_home")
         current_screen = BombScreen.get_current_screen() if current_screen == None else current_screen
         if current_screen == BombScreenEnum.HOME.value:
-            logger("already in home")
             return
         elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
-            logger("currently in treasure hunt, going back")
             click_when_target_appears("button_back")
         elif current_screen == BombScreenEnum.HEROES.value:
-            logger("heroes screen, closing")
             click_when_target_appears("button_x_close")
-        # elif current_screen == BombScreenEnum.CHEST.value:
-        #     click_when_target_appears("button_x_close")
-            return BombScreen.go_to_home(manager)
+            click_when_target_appears("button_arrow_down")
+            return
         else:
             Login.do_login(manager)
             return
@@ -104,22 +99,13 @@ class BombScreen:
         BombScreen.wait_for_screen(BombScreenEnum.HOME.value)
 
     def go_to_heroes(manager, current_screen = None):
-        logger("go_to_heroes")
         current_screen = BombScreen.get_current_screen() if current_screen == None else current_screen
         
-        if current_screen == BombScreenEnum.HOME.value:
-            click_when_target_appears("identify_home")
-            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
-            
-        elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
+        if current_screen == BombScreenEnum.TREASURE_HUNT.value:
+            click_when_target_appears("button_arrow")
+            click_when_target_appears("button_hero")
+        elif current_screen == BombScreenEnum.HEROES.value:
             return
-        
-        # elif current_screen == BombScreenEnum.CHEST.value or current_screen == BombScreenEnum.SETTINGS.value:
-        #     click_when_target_appears("buttun_x_close")
-        #     BombScreen.wait_for_leave_screen(BombScreenEnum.CHEST.value)
-        #     BombScreen.go_to_home(manager)
-        #     return BombScreen.go_to_heroes(manager) 
-        
         else:
             Login.do_login(manager)
             BombScreen.go_to_heroes(manager)
@@ -213,7 +199,7 @@ class Login:
                 
                 BombScreen.wait_for_screen(BombScreenEnum.METAMASK.value)
 
-                logger_translated("sigin wallet", LoggerEnum.BUTTON_CLICK)
+                logger_translated("signin wallet", LoggerEnum.BUTTON_CLICK)
                 if not click_when_target_appears("button_sign_wallet") and not click_when_target_appears("button_sign_wallet_dark"):
                     refresh_page()
                     continue
@@ -235,10 +221,7 @@ class Hero:
         logger_translated(f"Heroes to work", LoggerEnum.ACTION)
              
         heroes_bar = [
-            "hero_bar_0", "hero_bar_10", "hero_bar_20",
-            "hero_bar_30", "hero_bar_40", "hero_bar_50",
-            "hero_bar_60", "hero_bar_70", "hero_bar_80",
-            "hero_bar_90", "hero_bar_100"
+            "hero_green_bar", "hero_green_bar", "hero_green_bar", "hero_green_bar", "hero_green_bar", "hero_green_bar", "hero_green_bar"
             ]
         heroes_rarity = [
             "hero_rarity_Common", "hero_rarity_Rare", "hero_rarity_SuperRare", "hero_rarity_Epic", "hero_rarity_Legend", "hero_rarity_SuperLegend"
@@ -247,14 +230,16 @@ class Hero:
         scale_factor = 10
 
         current_screen = BombScreen.get_current_screen()
-        BombScreen.go_to_treasure_hunt(manager, current_screen)
+        BombScreen.go_to_treasure_hunt(manager)
         current_screen = BombScreenEnum.TREASURE_HUNT.value
         BombScreen.go_to_heroes(manager, current_screen)
+        current_screen = BombScreenEnum.HEROES.value
+
+        BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
         
         def click_available_heroes():
             n_clicks = 0
             screen_img = Image.screen()
-            
             buttons_position = Image.get_target_positions("button_work_unchecked", not_target="button_work_checked", screen_image=screen_img)
             logger(f"👁️  Found {len(buttons_position)} Heroes resting:")
             
@@ -265,26 +250,31 @@ class Hero:
             height, width = Image.TARGETS["hero_search_area"].shape[:2]
             screen_img = screen_img[:, x_buttons - width - Image.MONITOR_LEFT:x_buttons - Image.MONITOR_LEFT, :]
             logger("↳", end=" ", datetime=False)
+            
             for button_position in buttons_position:
-                x,y,w,h = button_position
+                x, y, w, h = button_position
                 search_img = screen_img[y:y + height, :, :]
 
-                rarity_max_values = [Image.get_compare_result(search_img, Image.TARGETS[rarity]).max() for rarity in heroes_rarity]
-                rarity_index, rarity_max_value= 0, 0
-                for i, value in enumerate(rarity_max_values):
-                    rarity_index, rarity_max_value = (i, value) if value > rarity_max_value else (rarity_index, rarity_max_value)
+                # rarity_max_values = [Image.get_compare_result(search_img, Image.TARGETS[rarity]).max() for rarity in heroes_rarity]
+                # rarity_index, rarity_max_value= 0, 0
+                # for i, value in enumerate(rarity_max_values):
+                #     rarity_index, rarity_max_value = (i, value) if value > rarity_max_value else (rarity_index, rarity_max_value)
 
-                hero_rarity = heroes_rarity[rarity_index].split("_")[-1]
-                logger(f"{hero_rarity}:", end=" ", datetime=False)
+                # hero_rarity = heroes_rarity[rarity_index].split("_")[-1]
+                # logger(f"{hero_rarity}:", end=" ", datetime=False)
 
-                life_max_values = [Image.get_compare_result(search_img, Image.TARGETS[bar]).max() for bar in heroes_bar]
-                life_index, life_max_value = 0, 0
-                for i, value in enumerate(life_max_values):
-                    life_index, life_max_value = (i, value) if value >= life_max_value else (life_index, life_max_value)
-
-
-                logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
-                if life_index * scale_factor >= Config.get('heroes_work_mod', "Rare"):
+                # life_max_values = [Image.get_compare_result(search_img, Image.TARGETS[bar]).max() for bar in heroes_bar]
+                # logger(f"{life_max_values}")
+                # life_index, life_max_value = 0, 0
+                # logger("1")
+                # for i, value in enumerate(life_max_values):
+                #     life_index, life_max_value = (i, value) if value >= life_max_value else (life_index, life_max_value)
+                #     logger(f"i {i} life_idx #{life_index} life_max_value #{life_max_value} value #{value}")
+                # logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
+                # if life_index * scale_factor >= Config.get('heroes_work_mod', "Rare"):
+                result = Image.get_compare_result(search_img, Image.TARGETS["hero_green_bar"]).max()
+                logger(f"result: {result}")
+                if  result > 0.6:
                     click_randomly_in_position(x, y, w, h)
                     n_clicks += 1
                     logger("💪;", end=" ",datetime=False)
@@ -293,6 +283,8 @@ class Hero:
 
             logger("", datetime=False)
             return n_clicks
+
+        
 
         n_clicks_per_scrool = scroll_and_click_on_targets(
             safe_scroll_target = "hero_bar_vertical",
