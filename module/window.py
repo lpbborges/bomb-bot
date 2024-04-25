@@ -23,17 +23,26 @@ def _get_linux_bombcrypto_windows():
     windows = stdout.split("\n")
     return [LinuxWindow(w) for w in windows]
 
+
 def _get_bombcrypto_windows():
     import pygetwindow
 
-    return [DefaultWindow(w) for w in pygetwindow.getWindowsWithTitle("bombcrypto")]
+    try:
+        windows = pygetwindow.getWindowsWithTitle("Bomber Land")
+        if windows is None:
+            raise ValueError("windows is None")
+        return [DefaultWindow(w) for w in windows]
+    except Exception as e:
+        raise Exception("Error getting windows with title 'Bomber Land'") from e
+
 
 class LinuxWindow:
     def __init__(self, window_id) -> None:
         self.window = window_id
 
-    def activate(self):        
+    def activate(self):
         subprocess.Popen(f"xdotool windowactivate {self.window}", shell=True)
+
 
 class DefaultWindow:
     def __init__(self, window) -> None:
