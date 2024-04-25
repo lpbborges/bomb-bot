@@ -21,7 +21,7 @@ class BombScreenEnum(Enum):
     HOME = 1
     HEROES = 2
     TREASURE_HUNT = 3
-    CHEST = 4
+    WALLET = 4
     POPUP_ERROR = 5
     SETTINGS = 6
 
@@ -69,8 +69,8 @@ class BombScreen:
             BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
             BombScreenEnum.LOGIN.value: Image.TARGETS["identify_login"],
             BombScreenEnum.TREASURE_HUNT.value: Image.TARGETS["identify_treasure_hunt"],
-            BombScreenEnum.CHEST.value: Image.TARGETS["identify_hunt_chest"],
-            BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_erro"],
+            BombScreenEnum.WALLET.value: Image.TARGETS["identify_wallet"],
+            BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_error"],
             BombScreenEnum.SETTINGS.value: Image.TARGETS["identify_settings"],
         }
         max_value = 0
@@ -97,9 +97,9 @@ class BombScreen:
         elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
             click_when_target_appears("button_back")
         elif current_screen == BombScreenEnum.HEROES.value:
-            click_when_target_appears("buttun_x_close")
-        elif current_screen == BombScreenEnum.CHEST.value:
-            click_when_target_appears("buttun_x_close")
+            click_when_target_appears("button_x_close")
+        elif current_screen == BombScreenEnum.WALLET.value:
+            click_when_target_appears("button_back")
             return BombScreen.go_to_home(manager)
         else:
             Login.do_login(manager)
@@ -122,11 +122,11 @@ class BombScreen:
             return
 
         elif (
-            current_screen == BombScreenEnum.CHEST.value
+            current_screen == BombScreenEnum.WALLET.value
             or current_screen == BombScreenEnum.SETTINGS.value
         ):
             click_when_target_appears("buttun_x_close")
-            BombScreen.wait_for_leave_screen(BombScreenEnum.CHEST.value)
+            BombScreen.wait_for_leave_screen(BombScreenEnum.WALLET.value)
             BombScreen.go_to_home(manager)
             return BombScreen.go_to_heroes(manager)
 
@@ -143,12 +143,12 @@ class BombScreen:
             BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
 
     def go_to_chest(manager):
-        if BombScreen.get_current_screen() == BombScreenEnum.CHEST.value:
+        if BombScreen.get_current_screen() == BombScreenEnum.WALLET.value:
             return
         else:
             BombScreen.go_to_treasure_hunt(manager)
             click_when_target_appears("button_hunt_chest")
-            BombScreen.wait_for_screen(BombScreenEnum.CHEST.value)
+            BombScreen.wait_for_screen(BombScreenEnum.WALLET.value)
 
     def do_print_chest(manager):
         logger_translated("print chest", LoggerEnum.ACTION)
@@ -157,7 +157,7 @@ class BombScreen:
             BombScreen.go_to_treasure_hunt(manager)
 
         click_when_target_appears("button_hunt_chest")
-        BombScreen.wait_for_screen(BombScreenEnum.CHEST.value)
+        BombScreen.wait_for_screen(BombScreenEnum.WALLET.value)
         image = None
         try:
             if Config.get("screen", "print_full_screen"):

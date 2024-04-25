@@ -79,8 +79,7 @@ def main(config_file):
                             f"💫 Bombcrypto window[{browsers_index}] started in: {BombScreenEnum(current_screen).name}"
                         )
 
-                        # with manager:
-                        manager.do_what_needs_to_be_done(current_screen)
+                    manager.do_what_needs_to_be_done(current_screen)
 
                     if browsers_index == bomb_browser_count - 1:
                         browsers_index = 0
