@@ -1,8 +1,6 @@
 import time
 
-from .bombScreen import BombScreen, Login
-from .enum.ScreenEnum import ScreenEnum
-from .hero import Hero
+from .bombScreen import BombScreen, BombScreenEnum, Hero, Login
 from .logger import logger
 from .mouse import *
 from .utils import *
@@ -34,8 +32,8 @@ class BombcryptoManager:
     def do_what_needs_to_be_done(self, current_screen):
 
         check_error = (
-            current_screen == ScreenEnum.POPUP_ERROR.value
-            or current_screen == ScreenEnum.NOT_FOUND.value
+            current_screen == BombScreenEnum.POPUP_ERROR.value
+            or current_screen == BombScreenEnum.NOT_FOUND.value
         )
 
         refresh_check_error = Config.get("screen", "refresh_check_error") * 60

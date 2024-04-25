@@ -5,12 +5,11 @@ from time import sleep
 import requests
 from packaging import version
 
-from module.bombScreen import BombScreen
+from module.bombScreen import BombScreen, BombScreenEnum
 from module.config import Config
 from module.image import Image
 from module.logger import logger, reset_log_file
 from module.manager import create_bombcrypto_managers
-from module.enum.ScreenEnum import ScreenEnum
 
 ## from module.telegram import TelegramBot
 
@@ -77,7 +76,7 @@ def main(config_file):
 
                     if show_initial_screen_message:
                         logger(
-                            f"💫 Bombcrypto window[{browsers_index}] started in: {ScreenEnum(current_screen).name}"
+                            f"💫 Bombcrypto window[{browsers_index}] started in: {BombScreenEnum(current_screen).name}"
                         )
 
                     manager.do_what_needs_to_be_done(current_screen)
