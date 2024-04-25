@@ -11,8 +11,6 @@ from module.image import Image
 from module.logger import logger, reset_log_file
 from module.manager import create_bombcrypto_managers
 
-## from module.telegram import TelegramBot
-
 __version__ = "0.0.1"
 
 
@@ -71,8 +69,8 @@ def main(config_file):
         while True:
             try:
                 for manager in bomb_crypto_managers:
+                    manager.window.activate()
                     current_screen = BombScreen.get_current_screen()
-                    logger(f"current_screen - {current_screen}")
 
                     if show_initial_screen_message:
                         logger(

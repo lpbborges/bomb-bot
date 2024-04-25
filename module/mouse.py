@@ -64,6 +64,16 @@ def click_when_target_appears(
     return do_with_timeout(click_one_target, args=[target])
 
 
+def click_in_the_middle_of_the_screen():
+    screen_size = pyautogui.size()
+    width = screen_size.width
+    height = screen_size.height
+    center_x = width / 2
+    center_y = height / 2
+
+    click_randomly_in_position(center_x, center_y, width, height)
+
+
 def randomize_values(x, w, y, h):
     x_rand = randomize_int(x, w, 0.20)
     y_rand = randomize_int(y, h, 0.20)

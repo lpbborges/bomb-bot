@@ -3,7 +3,6 @@ from turtle import width
 
 import mss
 import numpy as np
-import PIL.Image
 import cv2
 
 from .config import Config
@@ -89,22 +88,24 @@ class Image:
     def get_target_positions(
         target: str, screen_image=None, threshold: float = 0.8, not_target: str = None
     ):
+        logger(f"Searching for {target}...")
         threshold_config = Config.PROPERTIES["threshold"]["hero_to_work"]
         if threshold_config:
             threshold = threshold_config
-
         target_img = Image.TARGETS[target]
         screen_img = Image.screen() if screen_image is None else screen_image
-        result = cv2.matchTemplate(screen_img, target_img, cv2.TM_CCOEFF_NORMED)
-
+        match_result = cv2.matchTemplate(screen_img, target_img, cv2.TM_CCOEFF_NORMED)
         if not_target is not None:
             not_target_img = Image.TARGETS[not_target]
-            not_target_result = cv2.matchTemplate(
+            not_target_match_result = cv2.matchTemplate(
                 screen_img, not_target_img, cv2.TM_CCOEFF_NORMED
             )
-            result[result < not_target_result] = 0
+            for i in range(match_result.shape[0]):
+                for j in range(match_result.shape[1]):
+                    if match_result[i, j] < not_target_match_result[i, j]:
+                        match_result[i, j] = 0
 
-        y_result, x_result = np.where(result >= threshold)
+        y_result, x_result = np.where(match_result >= threshold)
 
         height, width = target_img.shape[:2]
         targets_positions = []

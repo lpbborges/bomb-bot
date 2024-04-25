@@ -7,7 +7,6 @@ from .image import Image
 from .logger import LoggerEnum, logger, logger_translated
 from .mouse import *
 from .utils import *
-from .telegram import TelegramBot
 
 NETWORKS = {
     0: "Binance",
@@ -23,7 +22,7 @@ class BombScreenEnum(Enum):
     TREASURE_HUNT = 3
     WALLET = 4
     POPUP_ERROR = 5
-    SETTINGS = 6
+    MENU_IS_OPEN = 6
 
 
 class BombScreen:
@@ -71,7 +70,7 @@ class BombScreen:
             BombScreenEnum.TREASURE_HUNT.value: Image.TARGETS["identify_treasure_hunt"],
             BombScreenEnum.WALLET.value: Image.TARGETS["identify_wallet"],
             BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_error"],
-            BombScreenEnum.SETTINGS.value: Image.TARGETS["identify_settings"],
+            BombScreenEnum.MENU_IS_OPEN.value: Image.TARGETS["identify_menu_is_open"],
         }
         max_value = 0
         img = Image.screen()
@@ -114,22 +113,19 @@ class BombScreen:
             else current_screen
         )
 
-        if current_screen == BombScreenEnum.HOME.value:
-            click_when_target_appears("button_heroes")
-            BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
-
-        elif current_screen == BombScreenEnum.HEROES.value:
+        if current_screen == BombScreenEnum.HEROES.value:
             return
-
-        elif (
-            current_screen == BombScreenEnum.WALLET.value
-            or current_screen == BombScreenEnum.SETTINGS.value
-        ):
-            click_when_target_appears("buttun_x_close")
+        elif current_screen == BombScreenEnum.HOME.value:
+            click_when_target_appears("button_farming")
+            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+            click_when_target_appears("button_open_menu")
+            time.sleep(2)
+            click_when_target_appears("button_hero")
+            BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
+        elif current_screen == BombScreenEnum.WALLET.value:
+            click_when_target_appears("button_back")
             BombScreen.wait_for_leave_screen(BombScreenEnum.WALLET.value)
-            BombScreen.go_to_home(manager)
             return BombScreen.go_to_heroes(manager)
-
         else:
             Login.do_login(manager)
             BombScreen.go_to_heroes(manager)
@@ -137,48 +133,22 @@ class BombScreen:
     def go_to_treasure_hunt(manager):
         if BombScreen.get_current_screen() == BombScreenEnum.TREASURE_HUNT.value:
             return
+        elif BombScreen.get_current_screen() == BombScreenEnum.HEROES.value:
+            click_when_target_appears("button_x_close")
+            click_in_the_middle_of_the_screen()
+            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
         else:
             BombScreen.go_to_home(manager)
-            click_when_target_appears("identify_home")
+            click_when_target_appears("button_farming")
             BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
 
-    def go_to_chest(manager):
+    def go_to_wallet(manager):
         if BombScreen.get_current_screen() == BombScreenEnum.WALLET.value:
             return
         else:
             BombScreen.go_to_treasure_hunt(manager)
-            click_when_target_appears("button_hunt_chest")
+            click_when_target_appears("button_wallet")
             BombScreen.wait_for_screen(BombScreenEnum.WALLET.value)
-
-    def do_print_chest(manager):
-        logger_translated("print chest", LoggerEnum.ACTION)
-
-        if BombScreen.get_current_screen() != BombScreenEnum.TREASURE_HUNT.value:
-            BombScreen.go_to_treasure_hunt(manager)
-
-        click_when_target_appears("button_hunt_chest")
-        BombScreen.wait_for_screen(BombScreenEnum.WALLET.value)
-        image = None
-        try:
-            if Config.get("screen", "print_full_screen"):
-                image = Image.print_full_screen("chest", "chest_screen_for_geometry")
-            else:
-                image = Image.print_partial_screen("chest", "chest_screen_for_geometry")
-
-            TelegramBot.send_message_with_image(
-                image,
-                "Se liga no BCOIN desse baú, não deixe de contribuir com a evolução do bot :D",
-            )
-        except Exception as e:
-            logger(str(e))
-            logger(
-                "😬 Ohh no! We couldn't send your farm report to Telegram.",
-                color="yellow",
-                force_log_file=True,
-            )
-
-        BombScreen.go_to_treasure_hunt(manager)
-        manager.set_refresh_timer("refresh_print_chest")
 
 
 class Login:
@@ -206,7 +176,7 @@ class Login:
 
                 logger_translated("Login", LoggerEnum.PAGE_FOUND)
 
-                logger_translated("wallet", LoggerEnum.BUTTON_CLICK)
+                logger_translated("connect wallet", LoggerEnum.BUTTON_CLICK)
                 if not click_when_target_appears("button_connect_wallet"):
                     refresh_page()
                     continue
@@ -218,6 +188,7 @@ class Login:
                     refresh_page()
                     continue
 
+                logger_translated("play", LoggerEnum.BUTTON_CLICK)
                 if not click_when_target_appears(f"button_play"):
                     refresh_page()
                     continue
@@ -229,6 +200,9 @@ class Login:
 
                 logger_translated("sign metamask", LoggerEnum.BUTTON_CLICK)
                 if not click_when_target_appears("button_sign") and network < 1:
+                    logger_translated(
+                        f"login network {NETWORKS[network]}", LoggerEnum.ACTION
+                    )
                     Login.do_login(manager, network + 1)
                     break
 
@@ -309,13 +283,14 @@ class Hero:
         def click_available_heroes():
             n_clicks = 0
             screen_img = Image.screen()
-
+            logger("Testing")
             buttons_position = Image.get_target_positions(
-                "button_work_unchecked",
-                not_target="button_work_checked",
+                "button_work",
                 screen_image=screen_img,
+                not_target="button_working",
             )
-            logger(f"👁️  Found {len(buttons_position)} Heroes resting:")
+
+            logger(f"👁️ Found {len(buttons_position)} Heroes resting...")
 
             if not buttons_position:
                 return 0
@@ -361,7 +336,7 @@ class Hero:
 
                 logger(f"{life_index*scale_factor}%", end=" ", datetime=False)
                 if life_index * scale_factor >= Config.get(
-                    "heroes_work_mod", hero_rarity
+                    "heroes_work_mod", "Default"
                 ):
                     click_randomly_in_position(x, y, w, h)
                     n_clicks += 1

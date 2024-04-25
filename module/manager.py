@@ -55,13 +55,6 @@ class BombcryptoManager:
         if refresh_hunt and (now() - self.refresh_hunt > refresh_hunt):
             Hero.refresh_hunt(self)
 
-        if Config.get("telegram", "token") and Config.get("telegram", "chat_id"):
-            refresh_print_chest = Config.get("telegram", "refresh_print_chest") * 60
-            if refresh_print_chest and (
-                now() - self.refresh_print_chest > refresh_print_chest
-            ):
-                BombScreen.do_print_chest(self)
-
         return True
 
     def set_refresh_timer(self, propertie_name):
