@@ -2,7 +2,7 @@ generals:
   # Save all logs in file logs/logger.txt
   #   0: Don't save log
   #   1: Save log
-  save_log_file: 1
+  save_log_file: 0
   
   # Reset log file on start
   #   0: false
