@@ -135,7 +135,7 @@ class BombScreen:
             return
         elif BombScreen.get_current_screen() == BombScreenEnum.HEROES.value:
             click_when_target_appears("button_x_close")
-            click_in_the_middle_of_the_screen()
+            click_when_target_appears("button_close_menu")
             BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
         else:
             BombScreen.go_to_home(manager)
@@ -283,7 +283,6 @@ class Hero:
         def click_available_heroes():
             n_clicks = 0
             screen_img = Image.screen()
-            logger("Testing")
             buttons_position = Image.get_target_positions(
                 "button_work",
                 screen_image=screen_img,
@@ -297,11 +296,13 @@ class Hero:
 
             x_buttons = buttons_position[0][0]
             height, width = Image.TARGETS["hero_search_area"].shape[:2]
+            logger(f"height {height} width {width}")
             screen_img = screen_img[
                 :,
                 x_buttons - width - Image.MONITOR_LEFT : x_buttons - Image.MONITOR_LEFT,
                 :,
             ]
+            logger(f"screen_img {screen_img}")
             logger("↳", end=" ", datetime=False)
             for button_position in buttons_position:
                 x, y, w, h = button_position
@@ -334,9 +335,9 @@ class Hero:
                         else (life_index, life_max_value)
                     )
 
-                logger(f"{life_index*scale_factor}%", end=" ", datetime=False)
+                logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
                 if life_index * scale_factor >= Config.get(
-                    "heroes_work_mod", "Default"
+                    "heroes_work_mod", hero_rarity
                 ):
                     click_randomly_in_position(x, y, w, h)
                     n_clicks += 1
@@ -366,6 +367,7 @@ class Hero:
     def refresh_hunt(manager):
         logger_translated("hunting positions", LoggerEnum.TIMER_REFRESH)
 
+        BombScreen.go_to_treasure_hunt(manager)
         BombScreen.go_to_home(manager)
         BombScreen.go_to_treasure_hunt(manager)
 
