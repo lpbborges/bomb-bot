@@ -53,15 +53,17 @@ def click_randomly_in_position(x, y, w, h):
 
 
 def click_when_target_appears(
-    target: str, time_beteween: float = 0.5, timeout: float = 10
+    target: str, time_between: float = 0.5, timeout: float = 10
 ):
     """Click in a target when it appears.
-    It will check for target every `time_beteween` seconds.
+    It will check for target every `time_between` seconds.
     After timeout seconds it will return 0 if no target was found.
     Returns 1 if target was found.
     """
 
-    return do_with_timeout(click_one_target, args=[target])
+    return do_with_timeout(
+        click_one_target, args=[target], time_between=time_between, timeout=timeout
+    )
 
 
 def click_in_the_middle_of_the_screen():
