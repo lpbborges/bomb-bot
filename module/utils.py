@@ -11,6 +11,10 @@ def date_formatted(format="%Y-%m-%d %H:%M:%S"):
     return time.strftime(format, time.localtime())
 
 
+def find_highest_index_max(arr):
+    return arr.index(max(arr))
+
+
 def replace(string, strReplace):
     if strReplace and string.endswith(strReplace):
         return string[: -len(strReplace)]

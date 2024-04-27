@@ -110,6 +110,13 @@ class Image:
         height, width = target_img.shape[:2]
         targets_positions = []
         for x, y in zip(x_result, y_result):
+            skip = False
+            for target in targets_positions:
+                if target[1] + height > y:
+                    skip = True
+                    break
+            if skip:
+                continue
             x += Image.MONITOR_LEFT
             y += Image.MONITOR_TOP
             targets_positions.append([x, y, width, height])

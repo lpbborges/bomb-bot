@@ -268,18 +268,29 @@ class Hero:
             "hero_bar_100",
         ]
         heroes_rarity = [
-            "hero_rarity_Common",
-            "hero_rarity_Rare",
-            "hero_rarity_SuperRare",
-            "hero_rarity_Epic",
-            "hero_rarity_Legend",
-            "hero_rarity_SuperLegend",
+            "hero_rarity_Common_full",
+            "hero_rarity_Common_min",
+            "hero_rarity_Common_mid",
+            "hero_rarity_Rare_full",
+            "hero_rarity_Rare_min",
+            "hero_rarity_Rare_mid",
+            "hero_rarity_SuperRare_full",
+            "hero_rarity_SuperRare_min",
+            "hero_rarity_SuperRare_mid",
+            "hero_rarity_Epic_full",
+            "hero_rarity_Epic_min",
+            "hero_rarity_Epic_mid",
+            "hero_rarity_Legend_full",
+            "hero_rarity_Legend_min",
+            "hero_rarity_Legend_mid",
+            "hero_rarity_SuperLegend_full",
+            "hero_rarity_SuperLegend_min",
+            "hero_rarity_SuperLegend_mid",
         ]
 
         scale_factor = 10
 
-        current_screen = BombScreen.get_current_screen()
-        BombScreen.go_to_heroes(manager, current_screen)
+        BombScreen.go_to_heroes(manager)
 
         def click_available_heroes():
             n_clicks = 0
@@ -287,7 +298,6 @@ class Hero:
             buttons_position = Image.get_target_positions(
                 "button_work",
                 screen_image=screen_img,
-                not_target="button_working",
             )
 
             logger(f"👁️ Found {len(buttons_position)} Heroes resting...")
@@ -305,39 +315,28 @@ class Hero:
             logger("↳", end=" ", datetime=False)
             for button_position in buttons_position:
                 x, y, w, h = button_position
-                search_img = screen_img[y : y + height, :, :]
-                cv2.imwrite(f"debug_{random()}.png", search_img)
+                offset = int((height - h) / 2)
+                search_img = screen_img[y - offset : y + height - offset, :, :]
 
                 rarity_max_values = [
                     Image.get_compare_result(search_img, Image.TARGETS[rarity]).max()
                     for rarity in heroes_rarity
                 ]
-                rarity_index, rarity_max_value = 0, 0
-                for i, value in enumerate(rarity_max_values):
-                    rarity_index, rarity_max_value = (
-                        (i, value)
-                        if value > rarity_max_value
-                        else (rarity_index, rarity_max_value)
-                    )
 
-                hero_rarity = heroes_rarity[rarity_index].split("_")[-1]
-                # logger(f"{hero_rarity}:", end=" ", datetime=False)
+                rarity_index = find_highest_index_max(rarity_max_values)
+
+                hero_rarity = heroes_rarity[rarity_index].split("_")[2]
+                logger(f"{hero_rarity}:", end=" ", datetime=False)
 
                 life_max_values = [
                     Image.get_compare_result(search_img, Image.TARGETS[bar]).max()
                     for bar in heroes_bar
                 ]
-                life_index, life_max_value = 0, 0
-                for i, value in enumerate(life_max_values):
-                    life_index, life_max_value = (
-                        (i, value)
-                        if value >= life_max_value
-                        else (life_index, life_max_value)
-                    )
+                life_index = find_highest_index_max(life_max_values)
+                logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
 
-                # logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
                 if life_index * scale_factor >= Config.get(
-                    "heroes_work_mod", "Default"
+                    "heroes_work_mod", hero_rarity
                 ):
                     click_randomly_in_position(x, y, w, h)
                     n_clicks += 1
