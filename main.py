@@ -5,7 +5,7 @@ from time import sleep
 import requests
 from packaging import version
 
-from module.bombScreen import BombScreen, BombScreenEnum
+from module.bomb_screen import BombScreen, BombScreenEnum
 from module.config import Config
 from module.image import Image
 from module.logger import logger, reset_log_file

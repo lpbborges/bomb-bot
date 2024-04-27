@@ -18,16 +18,15 @@ class BombScreenEnum(Enum):
     NOT_FOUND = -1
     LOGIN = 0
     HOME = 1
-    HEROES = 2
-    TREASURE_HUNT = 3
+    TREASURE_HUNT = 2
+    HEROES = 3
     WALLET = 4
     POPUP_ERROR = 5
-    MENU_IS_OPEN = 6
 
 
 class BombScreen:
 
-    def wait_for_screen(bombScreenEnum, time_between: float = 0.5, timeout: float = 60):
+    def wait_for_screen(bombScreenEnum, time_between: float = 0.5, timeout: float = 30):
         def check_screen():
             screen = BombScreen.get_current_screen()
             if screen == bombScreenEnum:
@@ -58,13 +57,12 @@ class BombScreen:
 
     def get_current_screen(time_between: float = 0.5, timeout: float = 20):
         targets = {
-            BombScreenEnum.HOME.value: Image.TARGETS["identify_home"],
-            BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
             BombScreenEnum.LOGIN.value: Image.TARGETS["identify_login"],
+            BombScreenEnum.HOME.value: Image.TARGETS["identify_home"],
             BombScreenEnum.TREASURE_HUNT.value: Image.TARGETS["identify_treasure_hunt"],
+            BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
             BombScreenEnum.WALLET.value: Image.TARGETS["identify_wallet"],
             BombScreenEnum.POPUP_ERROR.value: Image.TARGETS["popup_error"],
-            BombScreenEnum.MENU_IS_OPEN.value: Image.TARGETS["identify_menu_is_open"],
         }
         max_value = 0
         img = Image.screen()
@@ -308,6 +306,7 @@ class Hero:
             for button_position in buttons_position:
                 x, y, w, h = button_position
                 search_img = screen_img[y : y + height, :, :]
+                cv2.imwrite(f"debug_{random()}.png", search_img)
 
                 rarity_max_values = [
                     Image.get_compare_result(search_img, Image.TARGETS[rarity]).max()
@@ -322,7 +321,7 @@ class Hero:
                     )
 
                 hero_rarity = heroes_rarity[rarity_index].split("_")[-1]
-                logger(f"{hero_rarity}:", end=" ", datetime=False)
+                # logger(f"{hero_rarity}:", end=" ", datetime=False)
 
                 life_max_values = [
                     Image.get_compare_result(search_img, Image.TARGETS[bar]).max()
@@ -336,9 +335,9 @@ class Hero:
                         else (life_index, life_max_value)
                     )
 
-                logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
+                # logger(f"{life_index * scale_factor}%", end=" ", datetime=False)
                 if life_index * scale_factor >= Config.get(
-                    "heroes_work_mod", hero_rarity
+                    "heroes_work_mod", "Default"
                 ):
                     click_randomly_in_position(x, y, w, h)
                     n_clicks += 1

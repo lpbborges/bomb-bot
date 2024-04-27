@@ -1,6 +1,6 @@
 import time
 
-from .bombScreen import BombScreen, BombScreenEnum, Hero, Login
+from .bomb_screen import BombScreen, BombScreenEnum, Hero, Login
 from .logger import logger
 from .mouse import *
 from .utils import *
