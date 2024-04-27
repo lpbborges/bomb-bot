@@ -27,9 +27,7 @@ class BombScreenEnum(Enum):
 
 class BombScreen:
 
-    def wait_for_screen(
-        bombScreenEnum, time_beteween: float = 0.5, timeout: float = 60
-    ):
+    def wait_for_screen(bombScreenEnum, time_between: float = 0.5, timeout: float = 60):
         def check_screen():
             screen = BombScreen.get_current_screen()
             if screen == bombScreenEnum:
@@ -37,9 +35,7 @@ class BombScreen:
             else:
                 return None
 
-        res = do_with_timeout(
-            check_screen, time_beteween=time_beteween, timeout=timeout
-        )
+        res = do_with_timeout(check_screen, time_between=time_between, timeout=timeout)
 
         if res is None:
             raise Exception(
@@ -49,7 +45,7 @@ class BombScreen:
         return res
 
     def wait_for_leave_screen(
-        bombScreenEnum, time_beteween: float = 0.5, timeout: float = 60
+        bombScreenEnum, time_between: float = 0.5, timeout: float = 60
     ):
         def check_screen():
             screen = BombScreen.get_current_screen()
@@ -58,11 +54,9 @@ class BombScreen:
             else:
                 return True
 
-        return do_with_timeout(
-            check_screen, time_beteween=time_beteween, timeout=timeout
-        )
+        return do_with_timeout(check_screen, time_between=time_between, timeout=timeout)
 
-    def get_current_screen(time_beteween: float = 0.5, timeout: float = 20):
+    def get_current_screen(time_between: float = 0.5, timeout: float = 20):
         targets = {
             BombScreenEnum.HOME.value: Image.TARGETS["identify_home"],
             BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
@@ -115,11 +109,16 @@ class BombScreen:
 
         if current_screen == BombScreenEnum.HEROES.value:
             return
+        elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
+            click_when_target_appears("button_open_menu")
+            time.sleep(1)
+            click_when_target_appears("button_hero")
+            BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
         elif current_screen == BombScreenEnum.HOME.value:
             click_when_target_appears("button_farming")
             BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
             click_when_target_appears("button_open_menu")
-            time.sleep(2)
+            time.sleep(1)
             click_when_target_appears("button_hero")
             BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
         elif current_screen == BombScreenEnum.WALLET.value:
@@ -135,7 +134,13 @@ class BombScreen:
             return
         elif BombScreen.get_current_screen() == BombScreenEnum.HEROES.value:
             click_when_target_appears("button_x_close")
-            click_when_target_appears("button_close_menu")
+            time.sleep(1)
+            if not click_when_target_appears("button_close_menu"):
+                click_in_the_middle_of_the_screen()
+            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+        elif BombScreen.get_current_screen() == BombScreenEnum.MENU_IS_OPEN.value:
+            if not click_when_target_appears("button_close_menu"):
+                click_in_the_middle_of_the_screen()
             BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
         else:
             BombScreen.go_to_home(manager)
@@ -276,8 +281,6 @@ class Hero:
         scale_factor = 10
 
         current_screen = BombScreen.get_current_screen()
-        BombScreen.go_to_home(manager, current_screen)
-        current_screen = BombScreenEnum.HOME.value
         BombScreen.go_to_heroes(manager, current_screen)
 
         def click_available_heroes():
@@ -296,13 +299,11 @@ class Hero:
 
             x_buttons = buttons_position[0][0]
             height, width = Image.TARGETS["hero_search_area"].shape[:2]
-            logger(f"height {height} width {width}")
             screen_img = screen_img[
                 :,
                 x_buttons - width - Image.MONITOR_LEFT : x_buttons - Image.MONITOR_LEFT,
                 :,
             ]
-            logger(f"screen_img {screen_img}")
             logger("↳", end=" ", datetime=False)
             for button_position in buttons_position:
                 x, y, w, h = button_position

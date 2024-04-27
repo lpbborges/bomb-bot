@@ -28,7 +28,6 @@ def click_on_multiple_targets(target: str, not_click: str = None, filter_func=No
 
 def click_one_target(target: str):
     """click in a target. Returns number of clicks"""
-    result = None
     try:
         x_left, y_top, w, h = Image.get_one_target_position(target)
         x, y, move_duration, click_duration, time_between = randomize_values(
@@ -37,12 +36,9 @@ def click_one_target(target: str):
         pyautogui.moveTo(x, y, duration=move_duration, tween=pyautogui.easeOutQuad)
         time.sleep(time_between)
         pyautogui.click(duration=click_duration)
-        result = True
+        return True
     except Exception as e:
         return None
-        # logger(f"Error: {e}")
-
-    return result
 
 
 def click_randomly_in_position(x, y, w, h):
@@ -68,10 +64,14 @@ def click_in_the_middle_of_the_screen():
     screen_size = pyautogui.size()
     width = screen_size.width
     height = screen_size.height
-    center_x = width / 2
-    center_y = height / 2
-
-    click_randomly_in_position(center_x, center_y, width, height)
+    center_x = int(width / 2)
+    center_y = int(height / 2)
+    _x, _y, move_duration, click_duration, time_between = randomize_values(0, 0, 0, 0)
+    pyautogui.moveTo(
+        center_x, center_y, duration=move_duration, tween=pyautogui.easeOutQuad
+    )
+    time.sleep(time_between)
+    pyautogui.click(duration=click_duration)
 
 
 def randomize_values(x, w, y, h):

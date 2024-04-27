@@ -34,7 +34,7 @@ screen:
   number_login_attempts: 3
 
   # Time to update hero positions on farm screen
-  refresh_hunt: 7
+  refresh_hunt: 8
 
   # Timer to check who needs to go back to work
   refresh_heroes: 25
