@@ -45,11 +45,6 @@ screen:
   # Timer to check popup screen errors, if it's in error, restarts with login again
   refresh_check_error: 5
 
-  # Chest photo type, for sending via Telegram
-  #   true: The entire screen where the browser tab will be
-  #   false: Just chest screen with your coins
-  print_full_screen: false
-
   scroll_heroes:
     # total number of times the screen scrolls down
     repeat: 3
@@ -62,15 +57,6 @@ screen:
 
     # Wait time to stop scrolling before checking the heroes on the screen.
     wait: 1
-
-telegram:
-  # Settings for telegram integration 
-  token: ""
-  chat_id: 0
-
-  # Timer when your chest image is sent to telegram
-  refresh_print_chest: 60
-  
 
 # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # DONT CHANGE THIS CONFIGS
