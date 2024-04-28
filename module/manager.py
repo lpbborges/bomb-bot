@@ -25,7 +25,7 @@ class BombcryptoManager:
         time.sleep(2)
         return self
 
-    def __exit__(self):
+    def __exit__(self, type, value, tb):
         return
 
     def do_what_needs_to_be_done(self, current_screen):
