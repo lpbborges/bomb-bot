@@ -196,14 +196,6 @@ class BombScreen:
             click_when_target_appears("button_farming")
             BombScreen.wait_for_screen(BombScreenEnum.FARMING.value)
 
-    def go_to_wallet(manager):
-        if BombScreen.get_current_screen() == BombScreenEnum.WALLET.value:
-            return
-        else:
-            BombScreen.go_to_farming(manager)
-            click_when_target_appears("button_wallet")
-            BombScreen.wait_for_screen(BombScreenEnum.WALLET.value)
-
 
 class Login:
     def do_login(manager, network=0):
