@@ -15,12 +15,6 @@ def find_highest_index_max(arr):
     return arr.index(max(arr))
 
 
-def replace(string, strReplace):
-    if strReplace and string.endswith(strReplace):
-        return string[: -len(strReplace)]
-    return string
-
-
 def randomness_number(n, randomn_factor_size=None):
     if randomn_factor_size is None:
         randomness_percentage = 0.1
