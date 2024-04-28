@@ -11,7 +11,7 @@ from .utils import *
 
 
 class Image:
-    TARGETS = []
+    TARGETS = {}
     MONITOR_LEFT = None
     MONITOR_TOP = None
 

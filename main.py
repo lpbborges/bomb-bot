@@ -66,10 +66,10 @@ def main(config_file):
 
         show_initial_screen_message = True
         browsers_index = 0
+
         while True:
             try:
                 for manager in bomb_crypto_managers:
-                    manager.window.activate()
                     current_screen = BombScreen.get_current_screen()
 
                     if show_initial_screen_message:
@@ -77,7 +77,8 @@ def main(config_file):
                             f"💫 Bombcrypto window[{browsers_index}] started in: {BombScreenEnum(current_screen).name}"
                         )
 
-                    manager.do_what_needs_to_be_done(current_screen)
+                    with manager:
+                        manager.do_what_needs_to_be_done(current_screen)
 
                     if browsers_index == bomb_browser_count - 1:
                         browsers_index = 0

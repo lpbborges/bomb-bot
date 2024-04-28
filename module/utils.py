@@ -71,9 +71,9 @@ def refresh_page(delay: int = 5):
 def do_with_timeout(
     function, args=[], kwargs={}, time_between: float = 0.5, timeout: float = 20
 ):
-    start_time = time.time()
+    start_time = now()
     while True:
-        if time.time() - start_time > timeout:
+        if now() - start_time > timeout:
             return None
 
         result = function(*args, **kwargs)

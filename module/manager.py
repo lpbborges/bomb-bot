@@ -1,7 +1,6 @@
 import time
 
-from .bomb_screen import BombScreen, BombScreenEnum, Hero, Login
-from .logger import logger
+from .bomb_screen import Auth, BombScreenEnum, Hero, Login
 from .mouse import *
 from .utils import *
 from .window import get_windows
@@ -26,7 +25,7 @@ class BombcryptoManager:
         time.sleep(2)
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self):
         return
 
     def do_what_needs_to_be_done(self, current_screen):
@@ -45,7 +44,7 @@ class BombcryptoManager:
 
         refresh_login = Config.get("screen", "refresh_login") * 60
         if refresh_login and (now() - self.refresh_login > refresh_login):
-            Login.do_login(self)
+            Auth.login(self)
 
         refresh_heroes = Config.get("screen", "refresh_heroes") * 60
         if refresh_heroes and (now() - self.refresh_heroes > refresh_heroes):
@@ -58,4 +57,4 @@ class BombcryptoManager:
         return True
 
     def set_refresh_timer(self, propertie_name):
-        setattr(self, propertie_name, time.time())
+        setattr(self, propertie_name, now())

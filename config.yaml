@@ -28,6 +28,11 @@ heroes_work_mod:
   Legend: 30
   SuperLegend: 30
 
+auth:
+  # The network you want to use, 
+  # Possible values: binance or polygon
+  preferred_network: "binance"
+
 
 screen:
   # Number of login attempts
