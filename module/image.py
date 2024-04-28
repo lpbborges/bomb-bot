@@ -29,7 +29,7 @@ class Image:
                 if image is None:
                     raise Exception(f"Could not read image {file_path}")
 
-                targets[replace(file, ".png")] = image
+                targets[file.replace(".png", "")] = image
         except FileNotFoundError as e:
             logger(f"Error: {e}")
             raise e
