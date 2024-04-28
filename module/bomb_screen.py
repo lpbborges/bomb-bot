@@ -18,7 +18,7 @@ class BombScreenEnum(Enum):
     NOT_FOUND = -1
     LOGIN = 0
     HOME = 1
-    TREASURE_HUNT = 2
+    FARMING = 2
     HEROES = 3
     WALLET = 4
     SETTINGS = 5
@@ -77,7 +77,7 @@ class BombScreen:
         targets = {
             BombScreenEnum.LOGIN.value: Image.TARGETS["identify_login"],
             BombScreenEnum.HOME.value: Image.TARGETS["identify_home"],
-            BombScreenEnum.TREASURE_HUNT.value: Image.TARGETS["identify_treasure_hunt"],
+            BombScreenEnum.FARMING.value: Image.TARGETS["identify_farming"],
             BombScreenEnum.HEROES.value: Image.TARGETS["identify_heroes"],
             BombScreenEnum.WALLET.value: Image.TARGETS["identify_wallet"],
             BombScreenEnum.SETTINGS.value: Image.TARGETS["identify_settings"],
@@ -97,6 +97,10 @@ class BombScreen:
         return screen_name if max_value > Config.get("threshold", "default") else -1
 
     def go_to_home(manager, current_screen=None):
+        if not Auth.is_authenticated:
+            Auth.login(manager)
+            return BombScreen.go_to_home(manager)
+
         current_screen = (
             BombScreen.get_current_screen()
             if current_screen == None
@@ -104,18 +108,26 @@ class BombScreen:
         )
         if current_screen == BombScreenEnum.HOME.value:
             return
-        elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
+        elif current_screen == BombScreenEnum.FARMING.value:
             click_when_target_appears("button_back")
+            BombScreen.wait_for_screen(BombScreenEnum.HOME.value)
         elif current_screen == BombScreenEnum.HEROES.value:
             click_when_target_appears("button_x_close")
+            if not click_when_target_appears("button_close_menu", timeout=1.5):
+                click_in_the_middle_of_the_screen()
+            click_when_target_appears("button_back")
+            BombScreen.wait_for_screen(BombScreenEnum.HOME.value)
         elif current_screen == BombScreenEnum.WALLET.value:
             click_when_target_appears("button_back")
+            BombScreen.wait_for_leave_screen(BombScreenEnum.WALLET.value)
             return BombScreen.go_to_home(manager)
+        elif current_screen == BombScreenEnum.SETTINGS.value:
+            click_when_target_appears("button_x_close")
+            BombScreen.wait_for_leave_screen(BombScreenEnum.SETTINGS.value)
         else:
             Auth.login(manager)
+            BombScreen.go_to_home(manager)
             return
-
-        BombScreen.wait_for_screen(BombScreenEnum.HOME.value)
 
     def go_to_heroes(manager, current_screen=None):
         if not Auth.is_authenticated:
@@ -130,14 +142,14 @@ class BombScreen:
 
         if current_screen == BombScreenEnum.HEROES.value:
             return
-        elif current_screen == BombScreenEnum.TREASURE_HUNT.value:
+        elif current_screen == BombScreenEnum.FARMING.value:
             click_when_target_appears("button_open_menu")
             time.sleep(1)
             click_when_target_appears("button_hero")
             BombScreen.wait_for_screen(BombScreenEnum.HEROES.value)
         elif current_screen == BombScreenEnum.HOME.value:
             click_when_target_appears("button_farming")
-            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+            BombScreen.wait_for_screen(BombScreenEnum.FARMING.value)
             return BombScreen.go_to_heroes(manager)
         elif current_screen == BombScreenEnum.WALLET.value:
             click_when_target_appears("button_back")
@@ -163,13 +175,13 @@ class BombScreen:
             if not click_when_target_appears("button_close_menu", timeout=1.5):
                 click_in_the_middle_of_the_screen()
 
-        if current_screen == BombScreenEnum.TREASURE_HUNT.value:
+        if current_screen == BombScreenEnum.FARMING.value:
             # Sometimes the menu could be open, so we close it
             close_menu()
             return
         elif current_screen == BombScreenEnum.HOME.value:
             click_when_target_appears("button_farming")
-            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+            BombScreen.wait_for_screen(BombScreenEnum.FARMING.value)
         elif current_screen == BombScreenEnum.HEROES.value:
             click_when_target_appears("button_x_close")
             close_menu()
@@ -178,11 +190,11 @@ class BombScreen:
         elif current_screen == BombScreenEnum.SETTINGS.value:
             click_when_target_appears("button_x_close")
             click_when_target_appears("button_farming")
-            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+            BombScreen.wait_for_screen(BombScreenEnum.FARMING.value)
         else:
             BombScreen.go_to_home(manager)
             click_when_target_appears("button_farming")
-            BombScreen.wait_for_screen(BombScreenEnum.TREASURE_HUNT.value)
+            BombScreen.wait_for_screen(BombScreenEnum.FARMING.value)
 
     def go_to_wallet(manager):
         if BombScreen.get_current_screen() == BombScreenEnum.WALLET.value:
