@@ -57,7 +57,9 @@ def click_when_target_appears(
     Returns 1 if target was found.
     """
 
-    return do_with_timeout(click_one_target, args=[target])
+    return do_with_timeout(
+        click_one_target, args=[target], time_between=time_between, timeout=timeout
+    )
 
 
 def click_in_the_middle_of_the_screen():
