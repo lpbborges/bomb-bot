@@ -409,7 +409,6 @@ class Hero:
     def refresh_hunt(manager):
         logger_translated("hunting positions", LoggerEnum.TIMER_REFRESH)
 
-        BombScreen.go_to_farming(manager)
         BombScreen.go_to_home(manager)
         BombScreen.go_to_farming(manager)
 
