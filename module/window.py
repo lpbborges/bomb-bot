@@ -14,7 +14,7 @@ def get_windows():
 def _get_linux_bombcrypto_windows():
     stdout = (
         subprocess.Popen(
-            "xdotool search --name bombcrypto", shell=True, stdout=subprocess.PIPE
+            "xdotool search --name 'Bomber Land'", shell=True, stdout=subprocess.PIPE
         )
         .communicate()[0]
         .decode("utf-8")
