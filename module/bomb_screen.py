@@ -484,7 +484,7 @@ class Auth:
                         cls.logout()
                         continue
 
-                    if BombScreen.wait_for_screen(BombScreenEnum.HOME.value):
+                    if BombScreen.wait_for_screen(BombScreenEnum.FARMING.value):
                         logger("🎉 Logged in successfully!")
                         cls.is_authenticated = True
                         manager.set_refresh_timer("refresh_login")
